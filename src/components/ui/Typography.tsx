@@ -195,7 +195,7 @@ export function AccentLink({ to, children, className = '', iconLeft, iconRight, 
 interface TagProps {
   children: ReactNode;
   className?: string;
-  colorScheme?: 'blue' | 'green' | 'purple' | 'gray';
+  colorScheme?: 'blue' | 'green' | 'purple' | 'violet' | 'red' | 'yellow' | 'gray';
 }
 
 export function Tag({ children, className = '', colorScheme = 'blue' }: TagProps) {
@@ -203,12 +203,39 @@ export function Tag({ children, className = '', colorScheme = 'blue' }: TagProps
     blue: 'bg-blue-900/50 text-blue-300 border border-blue-700/50',
     green: 'bg-green-900/50 text-green-300 border border-green-700/50',
     purple: 'bg-purple-900/50 text-purple-300 border border-purple-700/50',
+    violet: 'bg-violet-900/50 text-violet-300 border border-violet-700/50',
+    red: 'bg-red-900/50 text-red-300 border border-red-700/50',
+    yellow: 'bg-yellow-900/50 text-yellow-300 border border-yellow-700/50',
     gray: 'bg-gray-700 text-gray-300 border border-gray-600',
   };
   const baseStyles = 'inline-flex items-center text-xs rounded-full font-medium px-2.5 py-0.5';
 
   return (
     <span className={`${baseStyles} ${colorClasses[colorScheme] || colorClasses.blue} ${className}`}>
+      {children}
+    </span>
+  );
+}
+
+interface BadgeProps {
+  children: ReactNode;
+  className?: string;
+  variant?: 'default' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
+}
+
+export function Badge({ children, className = '', variant = 'default' }: BadgeProps) {
+  const variantClasses: Record<string, string> = {
+    default: 'bg-blue-600 text-blue-100',
+    secondary: 'bg-gray-700 text-gray-100',
+    success: 'bg-green-600 text-green-100',
+    warning: 'bg-yellow-600 text-yellow-100',
+    danger: 'bg-red-600 text-red-100',
+    info: 'bg-violet-600 text-violet-100',
+  };
+  const baseStyles = 'inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full';
+
+  return (
+    <span className={`${baseStyles} ${variantClasses[variant] || variantClasses.default} ${className}`}>
       {children}
     </span>
   );
