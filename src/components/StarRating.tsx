@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Star } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Star } from 'lucide-react';
 
 interface StarRatingProps {
   /** Unique identifier for the content being rated (e.g., post ID, case ID) */
@@ -14,17 +14,29 @@ interface StarRatingProps {
   starSize?: number;
 }
 
+const filledStarClassMap: Record<string, string> = {
+  'yellow-400': 'fill-yellow-400 text-yellow-400',
+  'violet-400': 'fill-violet-400 text-violet-400',
+  'blue-400': 'fill-blue-400 text-blue-400',
+};
+
+const getStorage = () => {
+  if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
+    return null;
+  }
+  return window.localStorage;
+};
+
 /**
  * Star rating component for content
- * Stores ratings in localStorage and displays average rating
- * Can be used for blog posts, cases, or any ratable content
+ * Stores ratings in localStorage (when available) and tracks user rating state.
  */
 export function StarRating({
   itemId,
   storagePrefix = 'content',
   onRate,
   starColor = 'yellow-400',
-  starSize = 24
+  starSize = 24,
 }: StarRatingProps) {
   const [userRating, setUserRating] = useState<number>(0);
   const [averageRating, setAverageRating] = useState<number>(0);
@@ -32,63 +44,81 @@ export function StarRating({
   const [hoveredStar, setHoveredStar] = useState<number>(0);
 
   useEffect(() => {
-    // Load ratings from localStorage
+    const storage = getStorage();
+    if (!storage) {
+      return;
+    }
+
     const ratingsKey = `${storagePrefix}-ratings-${itemId}`;
     const userRatingKey = `${storagePrefix}-user-rating-${itemId}`;
 
-    const storedRatings = localStorage.getItem(ratingsKey);
-    const storedUserRating = localStorage.getItem(userRatingKey);
+    try {
+      const storedRatings = storage.getItem(ratingsKey);
+      const storedUserRating = storage.getItem(userRatingKey);
 
-    if (storedRatings) {
-      const { total, count } = JSON.parse(storedRatings);
-      setAverageRating(count > 0 ? total / count : 0);
-      setTotalRatings(count);
-    }
+      if (storedRatings) {
+        const { total, count } = JSON.parse(storedRatings) as { total: number; count: number };
+        setAverageRating(count > 0 ? total / count : 0);
+        setTotalRatings(count);
+      }
 
-    if (storedUserRating) {
-      setUserRating(parseInt(storedUserRating, 10));
+      if (storedUserRating) {
+        setUserRating(parseInt(storedUserRating, 10));
+      }
+    } catch (error) {
+      console.warn('Failed to read rating from storage', error);
     }
   }, [itemId, storagePrefix]);
 
-  const handleRate = (rating: number) => {
+  const persistRating = (rating: number) => {
+    const storage = getStorage();
+    if (!storage) {
+      return { total: rating, count: 1 };
+    }
+
     const ratingsKey = `${storagePrefix}-ratings-${itemId}`;
     const userRatingKey = `${storagePrefix}-user-rating-${itemId}`;
 
-    // Get existing ratings
-    const storedRatings = localStorage.getItem(ratingsKey);
     let total = 0;
     let count = 0;
 
-    if (storedRatings) {
-      const parsed = JSON.parse(storedRatings);
-      total = parsed.total;
-      count = parsed.count;
+    try {
+      const storedRatings = storage.getItem(ratingsKey);
+      if (storedRatings) {
+        const parsed = JSON.parse(storedRatings) as { total: number; count: number };
+        total = parsed.total;
+        count = parsed.count;
+      }
+
+      if (userRating > 0 && count > 0) {
+        total -= userRating;
+        count -= 1;
+      }
+
+      total += rating;
+      count += 1;
+
+      storage.setItem(ratingsKey, JSON.stringify({ total, count }));
+      storage.setItem(userRatingKey, rating.toString());
+    } catch (error) {
+      console.warn('Failed to persist rating', error);
     }
 
-    // If user already rated, subtract their old rating
-    if (userRating > 0) {
-      total -= userRating;
-      count -= 1;
-    }
+    return { total, count };
+  };
 
-    // Add new rating
-    total += rating;
-    count += 1;
+  const handleRate = (rating: number) => {
+    const { total, count } = persistRating(rating);
 
-    // Save to localStorage
-    localStorage.setItem(ratingsKey, JSON.stringify({ total, count }));
-    localStorage.setItem(userRatingKey, rating.toString());
-
-    // Update state
     setUserRating(rating);
-    setAverageRating(total / count);
+    setAverageRating(count > 0 ? total / count : rating);
     setTotalRatings(count);
 
-    // Callback
-    if (onRate) {
-      onRate(rating);
-    }
+    onRate?.(rating);
   };
+
+  const filledClasses =
+    filledStarClassMap[starColor] ?? filledStarClassMap['yellow-400'];
 
   return (
     <div className="flex flex-col gap-2">
@@ -109,9 +139,7 @@ export function StarRating({
                 <Star
                   size={starSize}
                   className={`transition-colors ${
-                    isFilled
-                      ? `fill-${starColor} text-${starColor}`
-                      : "text-gray-600 hover:text-gray-400"
+                    isFilled ? filledClasses : 'text-gray-600 hover:text-gray-400'
                   }`}
                 />
               </button>

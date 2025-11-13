@@ -12,22 +12,29 @@ import { useEffect } from 'react';
  */
 export function useBodyScrollLock(isLocked: boolean) {
   useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    const originalPaddingRight = document.body.style.paddingRight;
+    if (typeof document === 'undefined') {
+      return;
+    }
+    const body = document.body;
+    const originalOverflow = body.style.overflow;
+    const originalPaddingRight = body.style.paddingRight;
 
     if (isLocked) {
       // Prevent scrollbar from causing layout shift
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      const scrollbarWidth =
+        typeof window !== 'undefined'
+          ? window.innerWidth - document.documentElement.clientWidth
+          : 0;
 
-      document.body.style.overflow = 'hidden';
+      body.style.overflow = 'hidden';
       if (scrollbarWidth > 0) {
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
+        body.style.paddingRight = `${scrollbarWidth}px`;
       }
     }
 
     return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.paddingRight = originalPaddingRight;
+      body.style.overflow = originalOverflow;
+      body.style.paddingRight = originalPaddingRight;
     };
   }, [isLocked]);
 }

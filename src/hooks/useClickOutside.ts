@@ -19,6 +19,10 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
   handler: (event: MouseEvent | TouchEvent) => void
 ) {
   useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
     const listener = (event: MouseEvent | TouchEvent) => {
       const el = ref?.current;
 
