@@ -38,35 +38,66 @@ export function PrimaryNav({
   const activeClasses = variantClasses[variant].active;
   const inactiveClasses = variantClasses[variant].inactive;
 
+  const baseLinkClasses =
+    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900';
+  const orientationClasses =
+    orientation === 'horizontal'
+      ? 'focus:ring-violet-500'
+      : 'focus:ring-violet-500 w-full justify-between';
+
   return (
-    <nav
-      className={`${wrapperBase} ${className}`.trim()}
-      aria-label="Primary navigation"
-    >
-      {items.map((item) => (
-        <NavLink
-          key={item.path}
-          to={item.path}
-          className={({ isActive }) =>
-            [
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900',
-              orientation === 'horizontal' ? 'focus:ring-violet-500' : 'focus:ring-violet-500 w-full justify-between',
-              isActive ? activeClasses : inactiveClasses,
-            ].join(' ')
-          }
-          onClick={onNavigate}
-        >
-          <span className="flex items-center gap-2">
-            {item.icon}
-            <span>{item.label}</span>
-          </span>
-          {item.badge && (
-            <span className="text-xs font-semibold uppercase tracking-wide text-white bg-white/20 px-2 py-0.5 rounded-full">
-              {item.badge}
+    <nav className={`${wrapperBase} ${className}`.trim()} aria-label="Primary navigation">
+      {items.map((item) => {
+        const isExternal = Boolean(item.isExternal || /^https?:\/\//.test(item.path));
+        const content = (
+          <>
+            <span className="flex items-center gap-2">
+              {item.icon}
+              <span>{item.label}</span>
             </span>
-          )}
-        </NavLink>
-      ))}
+            {item.badge && (
+              <span className="text-xs font-semibold uppercase tracking-wide text-white bg-white/20 px-2 py-0.5 rounded-full">
+                {item.badge}
+              </span>
+            )}
+          </>
+        );
+        const combinedClasses = `${baseLinkClasses} ${orientationClasses} ${
+          isExternal ? inactiveClasses : ''
+        }`.trim();
+
+        if (isExternal) {
+          return (
+            <a
+              key={item.path}
+              href={item.path}
+              target="_blank"
+              rel="noreferrer noopener"
+              className={combinedClasses}
+              onClick={onNavigate}
+            >
+              {content}
+            </a>
+          );
+        }
+
+        return (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              [
+                baseLinkClasses,
+                orientationClasses,
+                isActive ? activeClasses : inactiveClasses,
+              ].join(' ')
+            }
+            onClick={onNavigate}
+          >
+            {content}
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }

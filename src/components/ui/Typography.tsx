@@ -22,6 +22,12 @@ interface HeadingProps {
   [key: string]: unknown;
 }
 
+const LEADING_CLASS_MAP: Record<'relaxed' | 'normal' | 'loose', string> = {
+  relaxed: 'leading-relaxed',
+  normal: 'leading-normal',
+  loose: 'leading-loose',
+};
+
 export function H1({ children, className = '', accentColorClass, icon, ...props }: HeadingProps) {
   const colorClass = accentColorClass || 'text-gray-100';
   return (
@@ -114,10 +120,11 @@ export function P({
   ...props
 }: ParagraphProps) {
   const sizeClass = size === 'sm' ? 'text-sm' : 'text-base';
+  const leadingClass = LEADING_CLASS_MAP[leading] || LEADING_CLASS_MAP.relaxed;
   return (
     <TextElement
       as={as || 'p'}
-      className={`${color} ${sizeClass} leading-${leading} ${className}`}
+      className={`${color} ${sizeClass} ${leadingClass} ${className}`.trim()}
       {...props}
     >
       {children}
@@ -143,7 +150,9 @@ export function SmallText({
   return (
     <TextElement
       as="p"
-      className={`${color} text-sm leading-${leading} ${className}`}
+      className={`${color} text-sm ${
+        LEADING_CLASS_MAP[leading] || LEADING_CLASS_MAP.normal
+      } ${className}`.trim()}
       {...props}
     >
       {children}

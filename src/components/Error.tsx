@@ -1,8 +1,26 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
-// Type declaration for process
-declare const process: { env: { NODE_ENV: string } };
+// Type declaration for process (when available at runtime)
+declare const process: { env?: { NODE_ENV?: string } };
+
+const resolveImportMetaMode = (): string | undefined => {
+  try {
+    // eslint-disable-next-line no-new-func
+    const getter = new Function(
+      'return typeof import.meta !== "undefined" ? import.meta.env?.MODE : undefined;'
+    ) as () => string | undefined;
+    return getter();
+  } catch {
+    return undefined;
+  }
+};
+
+const importMetaMode = resolveImportMetaMode();
+
+const isDevelopmentEnvironment =
+  (typeof process !== 'undefined' && process?.env?.NODE_ENV !== 'production') ||
+  (importMetaMode !== undefined && importMetaMode !== 'production');
 
 // ============================================================================
 // Error Message
@@ -223,7 +241,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     const { onError, showDevDetails = true } = this.props;
 
     // Log to console in development
-    if (process.env.NODE_ENV !== 'production' && showDevDetails) {
+    if (isDevelopmentEnvironment && showDevDetails) {
       console.error('Uncaught error:', error, errorInfo);
     }
 
@@ -254,7 +272,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               We're sorry, but something unexpected happened. The error has been logged.
             </p>
 
-            {process.env.NODE_ENV !== 'production' && showDevDetails && this.state.error && (
+            {isDevelopmentEnvironment && showDevDetails && this.state.error && (
               <details className="mb-6 text-left bg-gray-900 p-4 rounded-lg">
                 <summary className={`cursor-pointer ${errorTextColors[variant]} font-semibold mb-2`}>
                   Error Details (Dev Only)
