@@ -1,6 +1,6 @@
 # @krisarmstrong/web-foundation
 
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green) ![Version](https://img.shields.io/badge/Version-0.8.0-blue) ![npm](https://img.shields.io/badge/npm-package-CB3837?logo=npm)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green) ![Version](https://img.shields.io/badge/Version-0.9.0-blue) ![npm](https://img.shields.io/badge/npm-package-CB3837?logo=npm)
 
 Shared layout primitives (PageShell, Footer, Breadcrumbs, PrimaryNav, UI tokens) for Wi-Fi Vigilante, krisarmstrong-portfolio, and future sites. It now includes the base UI kit (Button, Card, Typography, PageHeader) so every property gets identical navigation, hero headings, and call-to-action styling out of the box. The package is framework-agnostic outside of React + React Router and ships compiled ESM/CJS bundles plus TypeScript definitions out of `dist/`.
 
@@ -11,6 +11,17 @@ Shared layout primitives (PageShell, Footer, Breadcrumbs, PrimaryNav, UI tokens)
 3. Point each consuming project at the local folder: `npm install ../web-foundation` (already done via `file:../web-foundation`).
 
 Both Wi-Fi Vigilante and the portfolio currently reference the package via `file:../web-foundation`, which means your CI/CD job must place the shared package next to each repo (monorepo checkout, git submodule, or npm registry publish).
+
+### Storybook playground
+
+The Storybook instance runs on Vite + Tailwind (same toolchain as each site), so components look identical whether they render in isolation or inside an app. Use it for a11y audits and rapid visual QA.
+
+```bash
+npm run storybook        # dev server on http://localhost:6006
+npm run build-storybook  # static export for CI artifacts / Chromatic
+```
+
+When you add a component, drop a `.stories.tsx` companion so we can regression test props and light/dark palettes automatically.
 
 ## Publishing
 
@@ -34,6 +45,7 @@ After publishing, update each consumer’s `package.json` to reference the seman
 - `Card` / `CardContent` – surfaced for dashboards and project grids.
 - `Typography` helpers – `H1`, `H2`, `ArticleTitle`, `P`, `MutedText`, `Tag`, `AccentLink`, etc.
 - `PageHeader` – icon + subtitle hero block used on the portfolio detail pages.
+- `ContactForm` – themable contact capture with honeypot + offline notice logic plus shared privacy copy.
 - `tokens` – spacing/color primitives you can override with CSS variables.
 
 ### Light vs Dark usage

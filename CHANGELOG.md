@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.0] - 2025-11-15
 
+## [0.9.0] - 2025-11-15
+
+### Added
+- ContactForm component with spam protection, offline messaging, and tone/background theming so Wi-Fi Vigilante and krisarmstrong.org can share the exact same UX with one source of truth.
+- Tailwind/PostCSS pipeline plus Storybook dark/light themes (`src/styles/storybook.css`) so components render identically to production.
+- Storybook stories for the new ContactForm and CSS import so Chromatic/QA can validate every primitive.
+
+### Changed
+- Button gained an `emerald` tone and the existing `sage` theme reuses the shared emerald palette for consistency across brands.
+- Storybook config now relies on explicit addon packages (`addon-docs`, `addon-a11y`, `addon-vitest`, `addon-onboarding`) instead of the removed `addon-essentials` meta package.
+
 ### Added
 - Theme-aware tokens (`themeTokens`) and optional `theme` props across layout primitives (PageShell, Footer, Breadcrumbs, NavCard, Card, PageHeader) so components render correctly in both dark and light palettes out of the box.
 - New `sage` tone for primary buttons, plus typography defaults that now read from CSS variables, allowing ThemeProvider overrides without manual class overrides.
