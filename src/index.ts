@@ -6,6 +6,7 @@ export {
   useOptionalTheme,
   defaultDarkTheme,
   defaultLightTheme,
+  intrinsicTheme,
 } from './context/ThemeContext';
 export type {
   ThemeConfig,
