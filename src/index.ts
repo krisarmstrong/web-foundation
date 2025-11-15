@@ -87,3 +87,5 @@ export { EmptyState } from './components/EmptyState';
 export type { EmptyStateProps } from './components/EmptyState';
 export { useProgressiveLoad } from './hooks/useProgressiveLoad';
 export type { UseProgressiveLoadOptions, UseProgressiveLoadReturn } from './hooks/useProgressiveLoad';
+export { ContactForm } from './components/ContactForm';
+export type { ContactFormProps, ContactFormTone, ContactFormSurface } from './components/ContactForm';
