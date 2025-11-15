@@ -147,7 +147,7 @@ export function Navbar({
           {desktopActions}
           <PrimaryNav
             items={navItems}
-            variant={variant === 'sage' || variant === 'default' ? 'violet' : variant}
+            variant={variant === 'default' ? 'violet' : variant}
           />
         </div>
 
@@ -201,7 +201,7 @@ export function Navbar({
                 <PrimaryNav
                   items={navItems}
                   orientation="vertical"
-                  variant={variant === 'sage' || variant === 'default' ? 'violet' : variant}
+                  variant={variant === 'default' ? 'violet' : variant}
                   onNavigate={closeMenu}
                 />
               </nav>

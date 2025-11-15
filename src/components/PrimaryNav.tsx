@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import type { NavItem } from '../types';
 
-type NavVariant = 'violet' | 'blue';
+type NavVariant = 'violet' | 'blue' | 'sage';
 type Orientation = 'horizontal' | 'vertical';
 
 interface PrimaryNavProps {
@@ -20,6 +20,10 @@ const variantClasses: Record<NavVariant, { active: string; inactive: string }> =
   blue: {
     active: 'bg-blue-600 text-white shadow-lg shadow-blue-500/40',
     inactive: 'text-gray-300 hover:bg-gray-700 hover:text-white',
+  },
+  sage: {
+    active: 'bg-accent text-primary-dark shadow-md',
+    inactive: 'text-text-main hover:bg-accent/10 hover:text-accent',
   },
 };
 
