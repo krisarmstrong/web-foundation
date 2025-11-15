@@ -144,11 +144,11 @@ export function Navbar({
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-4">
-          {desktopActions}
           <PrimaryNav
             items={navItems}
             variant={variant === 'default' ? 'violet' : variant}
           />
+          {desktopActions}
         </div>
 
         {/* Mobile: Hamburger */}
