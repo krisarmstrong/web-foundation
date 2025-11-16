@@ -1,7 +1,6 @@
-import type { FooterProps, Theme } from '../types';
+import type { FooterProps } from '../types';
 import { themeTokens } from '../tokens';
 import { useOptionalTheme } from '../context/ThemeContext';
-import { CSSProperties } from 'react';
 
 const defaultSocial = [
   {
@@ -38,7 +37,11 @@ export function Footer({
   return (
     <footer
       className="px-4 py-8 transition-colors duration-200"
-      style={{ backgroundColor: palette.surfaceRaised, color: palette.textMuted, borderTop: `1px solid ${palette.border}` }}
+      style={{
+        backgroundColor: palette.surfaceRaised,
+        color: palette.textMuted,
+        borderTop: `1px solid ${palette.border}`,
+      }}
     >
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 text-center">
         {social.length > 0 && (
@@ -63,7 +66,11 @@ export function Footer({
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
             {legalLinks.map((link, index) => (
               <span key={link.path} className="flex items-center gap-4">
-                {index > 0 && <span aria-hidden="true" style={{ color: palette.textMuted }}>|</span>}
+                {index > 0 && (
+                  <span aria-hidden="true" style={{ color: palette.textMuted }}>
+                    |
+                  </span>
+                )}
                 <a
                   href={link.path}
                   className="transition-colors hover:underline"
