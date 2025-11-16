@@ -46,7 +46,7 @@ export function List({
   accentColor = 'violet',
 }: ListProps) {
   const spacingClass = spacingClasses[spacing];
-  const colorClass = accentColorClasses[accentColor];
+  const _colorClass = accentColorClasses[accentColor]; // Reserved for future use
 
   if (style === 'number') {
     return (
@@ -57,7 +57,11 @@ export function List({
   }
 
   return (
-    <ul className={`${spacingClass} ${className}`} data-list-style={style} data-accent-color={accentColor}>
+    <ul
+      className={`${spacingClass} ${className}`}
+      data-list-style={style}
+      data-accent-color={accentColor}
+    >
       {children}
     </ul>
   );
@@ -68,9 +72,9 @@ export function List({
  */
 export function ListItem({ children, className = '' }: ListItemProps) {
   // Get parent list context
-  const parentList = typeof window !== 'undefined' ?
-    document.querySelector('[data-list-style]') : null;
-  const style = parentList?.getAttribute('data-list-style') as ListStyle || 'bullet';
+  const parentList =
+    typeof window !== 'undefined' ? document.querySelector('[data-list-style]') : null;
+  const style = (parentList?.getAttribute('data-list-style') as ListStyle) || 'bullet';
   const accentColor = parentList?.getAttribute('data-accent-color') || 'violet';
   const colorClass = accentColorClasses[accentColor];
 
