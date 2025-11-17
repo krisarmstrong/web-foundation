@@ -91,8 +91,8 @@ export function Navbar({
   // Build inline styles from theme if available
   const navStyle: CSSProperties = theme
     ? {
-        backgroundColor: theme.surface?.base,
-        borderColor: theme.surface?.border,
+        backgroundColor: theme.surface?.raised,
+        borderBottom: `1px solid ${theme.surface?.border}`,
         color: theme.text?.primary,
       }
     : {};
@@ -168,14 +168,14 @@ export function Navbar({
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           <PrimaryNav items={navItems} variant={variant === 'default' ? 'violet' : variant} />
           {desktopActions}
         </div>
 
         {/* Mobile: Hamburger */}
         <button
-          className={`lg:hidden ${finalAccentColor} focus:outline-none focus:ring-2 rounded-lg p-2 hover:bg-opacity-10 transition-colors`}
+          className={`md:hidden ${finalAccentColor} focus:outline-none focus:ring-2 rounded-lg p-2 hover:bg-opacity-10 transition-colors`}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(!menuOpen)}
