@@ -32,7 +32,10 @@ interface NavbarProps {
   accentColor?: string;
 }
 
-const variantColors: Record<NavVariant, { bg: string; border: string; text: string; accent: string }> = {
+const variantColors: Record<
+  NavVariant,
+  { bg: string; border: string; text: string; accent: string }
+> = {
   violet: {
     bg: 'bg-gray-900',
     border: 'border-gray-800',
@@ -80,17 +83,26 @@ export function Navbar({
   const theme = themeContext?.theme;
 
   const colors = variantColors[variant];
-  const finalBgColor = bgColor || colors.bg;
-  const finalBorderColor = borderColor || colors.border;
-  const finalTextColor = textColor || colors.text;
+  const finalBgColor = theme ? '' : bgColor || colors.bg;
+  const finalBorderColor = theme ? '' : borderColor || colors.border;
+  const finalTextColor = theme ? '' : textColor || colors.text;
   const finalAccentColor = accentColor || colors.accent;
 
   // Build inline styles from theme if available
-  const navStyle: CSSProperties = theme ? {
-    backgroundColor: theme.surface?.base,
-    borderColor: theme.surface?.border,
-    color: theme.text?.primary,
-  } : {};
+  const navStyle: CSSProperties = theme
+    ? {
+        backgroundColor: theme.surface?.base,
+        borderColor: theme.surface?.border,
+        color: theme.text?.primary,
+      }
+    : {};
+
+  const drawerStyle: CSSProperties = theme
+    ? {
+        backgroundColor: theme.surface?.base,
+        borderColor: theme.surface?.border,
+      }
+    : {};
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -157,10 +169,7 @@ export function Navbar({
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-4">
-          <PrimaryNav
-            items={navItems}
-            variant={variant === 'default' ? 'violet' : variant}
-          />
+          <PrimaryNav items={navItems} variant={variant === 'default' ? 'violet' : variant} />
           {desktopActions}
         </div>
 
@@ -188,15 +197,17 @@ export function Navbar({
             <div
               ref={menuRef}
               className={`md:hidden fixed top-0 right-0 h-screen w-80 max-w-[85vw] ${finalBgColor} border-l ${finalBorderColor} z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col`}
+              style={drawerStyle}
               role="dialog"
               aria-modal="true"
               aria-label="Mobile navigation"
             >
               {/* Header */}
-              <div className={`flex items-center justify-between p-4 border-b ${finalBorderColor}`}>
-                <div className="flex items-center gap-2">
-                  {logo}
-                </div>
+              <div
+                className={`flex items-center justify-between p-4 border-b ${finalBorderColor}`}
+                style={theme ? { borderColor: theme.surface?.border } : {}}
+              >
+                <div className="flex items-center gap-2">{logo}</div>
                 <button
                   className={`${finalAccentColor} focus:outline-none focus:ring-2 rounded-lg p-2 transition-colors`}
                   onClick={closeMenu}
@@ -221,7 +232,12 @@ export function Navbar({
 
               {/* Footer */}
               {mobileFooter && (
-                <div className={`p-6 border-t ${finalBorderColor}`}>{mobileFooter}</div>
+                <div
+                  className={`p-6 border-t ${finalBorderColor}`}
+                  style={theme ? { borderColor: theme.surface?.border } : {}}
+                >
+                  {mobileFooter}
+                </div>
               )}
             </div>
           </>
