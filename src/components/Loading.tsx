@@ -38,7 +38,7 @@ export function LoadingSpinner({
   className = '',
   variant = 'blue',
   trackSlowLoadingAfter = 5000,
-  loadingContext = 'unknown'
+  loadingContext = 'unknown',
 }: LoadingSpinnerProps) {
   const startTimeRef = useRef<number>(Date.now());
   const trackedRef = useRef<boolean>(false);
@@ -64,8 +64,7 @@ export function LoadingSpinner({
         // Send to Sentry if available
         const Sentry = getSentry();
         if (Sentry) {
-          Sentry.captureMessage('Slow loading detected', {
-            level: 'warning',
+          Sentry.captureMessage('Slow loading detected', 'warning', {
             tags: {
               component: 'LoadingSpinner',
               context: loadingContext,
@@ -93,8 +92,16 @@ export function LoadingSpinner({
   }, [trackSlowLoadingAfter, loadingContext]);
 
   return (
-    <div className={`flex items-center justify-center ${className}`} role="status" aria-live="polite">
-      <Loader2 size={size} className={`animate-spin ${spinnerColors[variant]}`} aria-hidden="true" />
+    <div
+      className={`flex items-center justify-center ${className}`}
+      role="status"
+      aria-live="polite"
+    >
+      <Loader2
+        size={size}
+        className={`animate-spin ${spinnerColors[variant]}`}
+        aria-hidden="true"
+      />
       <span className="sr-only">Loading...</span>
     </div>
   );
@@ -125,7 +132,11 @@ export function LoadingCard({
   return (
     <div
       className="rounded-lg p-8 text-center border"
-      style={{ backgroundColor: palette.surfaceRaised, borderColor: palette.border, color: palette.textPrimary }}
+      style={{
+        backgroundColor: palette.surfaceRaised,
+        borderColor: palette.border,
+        color: palette.textPrimary,
+      }}
     >
       <LoadingSpinner size={48} className="mb-4" variant={variant} />
       <p style={{ color: palette.textMuted }}>{message}</p>
@@ -203,10 +214,7 @@ export function SkeletonText({ lines = 3 }: SkeletonTextProps) {
   return (
     <div className="space-y-3">
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          className={`h-4 ${i === lines - 1 ? 'w-5/6' : 'w-full'}`}
-        />
+        <Skeleton key={i} className={`h-4 ${i === lines - 1 ? 'w-5/6' : 'w-full'}`} />
       ))}
     </div>
   );

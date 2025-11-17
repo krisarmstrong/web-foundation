@@ -15,7 +15,10 @@
     "paths": {
       "@krisarmstrong/web-foundation/*": ["src/*"]
     },
-    "outDir": "dist"
+    "outDir": "dist",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["src"]
 }

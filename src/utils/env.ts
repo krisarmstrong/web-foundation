@@ -5,6 +5,35 @@
 // Type declaration for process (when available at runtime)
 declare const process: { env?: { NODE_ENV?: string } };
 
+// Basic Sentry interface for optional peer dependency
+interface SentryInstance {
+  captureException: (
+    exception: Error,
+    hint?: {
+      contexts?: Record<string, unknown>;
+      tags?: Record<string, string>;
+      extra?: Record<string, unknown>;
+      level?: string;
+    }
+  ) => void;
+  captureMessage: (
+    message: string,
+    level?: string,
+    hint?: {
+      tags?: Record<string, string>;
+      extra?: Record<string, unknown>;
+    }
+  ) => void;
+  withScope: (callback: (scope: unknown) => void) => void;
+  [key: string]: unknown;
+}
+
+declare global {
+  interface Window {
+    Sentry?: SentryInstance;
+  }
+}
+
 /**
  * Safely check if we're in development mode.
  * This works for both Vite (import.meta.env.MODE) and webpack (process.env.NODE_ENV).
@@ -31,9 +60,9 @@ export const isDevelopmentEnvironment = (() => {
  * Returns null if Sentry is not installed (optional peer dependency).
  * This avoids CommonJS require() in an ESM project.
  */
-export function getSentry(): any | null {
-  if (typeof window !== 'undefined' && (window as any).Sentry) {
-    return (window as any).Sentry;
+export function getSentry(): SentryInstance | null {
+  if (typeof window !== 'undefined' && window.Sentry) {
+    return window.Sentry;
   }
   return null;
 }

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { Search as SearchIcon, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from 'react';
+import { Search as SearchIcon, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { Theme } from '../types';
 import { themeTokens } from '../tokens';
 
@@ -28,29 +28,29 @@ interface SiteSearchProps {
 
 const defaultTypeColors: Record<string, Record<string, string>> = {
   violet: {
-    default: "bg-violet-500/20 text-violet-400",
+    default: 'bg-violet-500/20 text-violet-400',
   },
   blue: {
-    default: "bg-blue-500/20 text-blue-400",
+    default: 'bg-blue-500/20 text-blue-400',
   },
   sage: {
-    default: "bg-accent/20 text-accent",
+    default: 'bg-accent/20 text-accent',
   },
   default: {
-    default: "bg-gray-500/20 text-gray-400",
+    default: 'bg-gray-500/20 text-gray-400',
   },
 };
 
 export function SiteSearch({
   searchableContent,
-  placeholder = "Search...",
+  placeholder = 'Search...',
   variant = 'violet',
   typeColors,
   maxResults = 8,
   theme = 'dark',
 }: SiteSearchProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -59,17 +59,17 @@ export function SiteSearch({
   // Handle keyboard shortcut (Ctrl+K or Cmd+K)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         setIsOpen(true);
       }
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Focus input when opened
@@ -86,7 +86,7 @@ export function SiteSearch({
       return;
     }
 
-    const searchTerms = query.toLowerCase().split(" ");
+    const searchTerms = query.toLowerCase().split(' ');
     const filtered = searchableContent.filter((item) => {
       const searchText = `${item.title} ${item.excerpt}`.toLowerCase();
       return searchTerms.every((term) => searchText.includes(term));
@@ -98,7 +98,7 @@ export function SiteSearch({
   const handleResultClick = (path: string) => {
     navigate(path);
     setIsOpen(false);
-    setQuery("");
+    setQuery('');
   };
 
   const getTypeColor = (type: string) => {
@@ -130,16 +130,25 @@ export function SiteSearch({
       <div
         className={`fixed inset-0 ${theme === 'light' ? 'bg-black/30' : 'bg-black/50'} backdrop-blur-sm z-50`}
         onClick={() => setIsOpen(false)}
+        onKeyDown={(e) => e.key === 'Escape' && setIsOpen(false)}
+        role="presentation"
       />
 
       {/* Search Modal */}
       <div className="fixed inset-x-4 top-20 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-2xl z-50">
         <div
           className="rounded-xl shadow-2xl border overflow-hidden"
-          style={{ backgroundColor: palette.surfaceRaised, borderColor: palette.border, color: palette.textPrimary }}
+          style={{
+            backgroundColor: palette.surfaceRaised,
+            borderColor: palette.border,
+            color: palette.textPrimary,
+          }}
         >
           {/* Search Input */}
-          <div className="flex items-center gap-3 p-4 border-b" style={{ borderColor: palette.border }}>
+          <div
+            className="flex items-center gap-3 p-4 border-b"
+            style={{ borderColor: palette.border }}
+          >
             <SearchIcon size={20} style={{ color: palette.textMuted }} />
             <input
               ref={inputRef}

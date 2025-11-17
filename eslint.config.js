@@ -4,12 +4,15 @@ import tsParser from '@typescript-eslint/parser';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
+import security from 'eslint-plugin-security';
+import noSecrets from 'eslint-plugin-no-secrets';
 
 export default [
   {
     ignores: ['dist/**', 'node_modules/**', '.github/**', 'coverage/**'],
   },
   js.configs.recommended,
+  security.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -35,16 +38,21 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
-      'react': react,
+      react: react,
       'react-hooks': reactHooks,
       'jsx-a11y': jsxA11y,
+      security: security,
+      'no-secrets': noSecrets,
     },
     rules: {
       // TypeScript rules
-      '@typescript-eslint/no-unused-vars': ['error', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
 
@@ -66,6 +74,10 @@ export default [
       'no-console': 'off', // Allow console for development utilities
       'no-undef': 'off', // TypeScript handles this
       'no-unused-vars': 'off', // Use TypeScript version
+
+      // Security rules
+      'no-secrets/no-secrets': 'error',
+      'security/detect-object-injection': 'off', // False positives in React components with controlled object access
     },
     settings: {
       react: {
