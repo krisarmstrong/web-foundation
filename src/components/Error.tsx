@@ -1,6 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { isDevelopmentEnvironment, getSentry } from '../utils/env';
+import DOMPurify from 'dompurify';
 
 // ============================================================================
 // Error Message
@@ -60,21 +61,29 @@ export function ErrorMessage({
   error,
   onRetry,
   className = '',
-  variant = 'red'
+  variant = 'red',
 }: ErrorMessageProps) {
-  const errorMessage = typeof error === 'string'
-    ? error
-    : error && typeof error === 'object' && 'message' in error
-    ? error.message
-    : 'An unexpected error occurred. Please try again.';
+  const errorMessage =
+    typeof error === 'string'
+      ? error
+      : error && typeof error === 'object' && 'message' in error
+        ? error.message
+        : 'An unexpected error occurred. Please try again.';
+
+  const sanitizedErrorMessage = { __html: DOMPurify.sanitize(errorMessage || '') };
 
   return (
-    <div className={`${errorBgColors[variant]} border ${errorBorderColors[variant]} rounded-lg p-4 ${className}`}>
+    <div
+      className={`${errorBgColors[variant]} border ${errorBorderColors[variant]} rounded-lg p-4 ${className}`}
+    >
       <div className="flex items-start gap-3">
         <AlertCircle className={`${errorTextColors[variant]} flex-shrink-0 mt-0.5`} size={20} />
         <div className="flex-1">
           <h3 className={`${errorTextColors[variant]} font-semibold mb-1`}>Error</h3>
-          <p className={`${errorTextColors[variant]} text-sm`}>{errorMessage}</p>
+          <p
+            className={`${errorTextColors[variant]} text-sm`}
+            dangerouslySetInnerHTML={sanitizedErrorMessage}
+          ></p>
           {onRetry && (
             <button
               onClick={onRetry}
@@ -106,24 +115,27 @@ export interface ErrorCardProps {
 /**
  * ErrorCard - Card-style error display
  */
-export function ErrorCard({
-  error,
-  onRetry,
-  variant = 'red'
-}: ErrorCardProps) {
-  const errorMessage = typeof error === 'string'
-    ? error
-    : error && typeof error === 'object' && 'message' in error
-    ? error.message
-    : 'We encountered an error while loading this content.';
+export function ErrorCard({ error, onRetry, variant = 'red' }: ErrorCardProps) {
+  const errorMessage =
+    typeof error === 'string'
+      ? error
+      : error && typeof error === 'object' && 'message' in error
+        ? error.message
+        : 'We encountered an error while loading this content.';
+
+  const sanitizedErrorMessage = { __html: DOMPurify.sanitize(errorMessage || '') };
 
   return (
     <div className="bg-gray-800 rounded-lg p-8 text-center">
-      <div className={`mx-auto w-16 h-16 ${errorBgColors[variant]} rounded-full flex items-center justify-center mb-4`}>
+      <div
+        className={`mx-auto w-16 h-16 ${errorBgColors[variant]} rounded-full flex items-center justify-center mb-4`}
+      >
         <AlertCircle className={errorTextColors[variant]} size={32} />
       </div>
-      <h3 className={`text-xl font-semibold ${errorTextColors[variant]} mb-2`}>Something went wrong</h3>
-      <p className="text-gray-300 mb-4">{errorMessage}</p>
+      <h3 className={`text-xl font-semibold ${errorTextColors[variant]} mb-2`}>
+        Something went wrong
+      </h3>
+      <p className="text-gray-300 mb-4" dangerouslySetInnerHTML={sanitizedErrorMessage}></p>
       {onRetry && (
         <button
           onClick={onRetry}
@@ -153,11 +165,7 @@ export interface ErrorPageProps {
 /**
  * ErrorPage - Full-page error display
  */
-export function ErrorPage({
-  error,
-  onRetry,
-  variant = 'red'
-}: ErrorPageProps) {
+export function ErrorPage({ error, onRetry, variant = 'red' }: ErrorPageProps) {
   return (
     <div className="flex flex-col justify-center items-center min-h-[calc(100vh-200px)] text-white px-4">
       <div className="max-w-md w-full">
@@ -214,7 +222,7 @@ interface ErrorBoundaryState {
  */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
-    hasError: false
+    hasError: false,
   };
 
   public static getDerivedStateFromError(error: Error): ErrorBoundaryState {
@@ -269,7 +277,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   public render() {
-    const { children, fallback, homePath = '/', variant = 'violet', showDevDetails = true } = this.props;
+    const {
+      children,
+      fallback,
+      homePath = '/',
+      variant = 'violet',
+      showDevDetails = true,
+    } = this.props;
 
     if (this.state.hasError) {
       if (fallback) {
@@ -289,7 +303,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             {isDevelopmentEnvironment && showDevDetails && this.state.error && (
               <details className="mb-6 text-left bg-gray-900 p-4 rounded-lg">
-                <summary className={`cursor-pointer ${errorTextColors[variant]} font-semibold mb-2`}>
+                <summary
+                  className={`cursor-pointer ${errorTextColors[variant]} font-semibold mb-2`}
+                >
                   Error Details (Dev Only)
                 </summary>
                 <pre className="text-xs text-red-400 overflow-auto">

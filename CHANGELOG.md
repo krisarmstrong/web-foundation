@@ -5,9 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.8.0] - 2025-11-15
-
-## [0.9.1] - 2025-11-16
+## [0.9.0] - 2025-11-16
 
 ### Fixed
 - **CRITICAL**: Fixed React import location in ThemeContext.tsx - now properly imports useState and useEffect at top of file

@@ -19,6 +19,12 @@ export default defineConfig({
         '**/vitest.setup.ts',
         '**/*.stories.tsx',
       ],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
     },
   },
   resolve: {

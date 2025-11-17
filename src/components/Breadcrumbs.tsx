@@ -1,6 +1,15 @@
 import type { BreadcrumbsProps } from '../types';
 import { themeTokens } from '../tokens';
 
+/**
+ * Breadcrumbs - A component to display a breadcrumb trail.
+ *
+ * @param {Object} props - The component props.
+ * @param {Array<Object>} props.items - An array of breadcrumb items.
+ * @param {string} [props.className] - Additional CSS classes.
+ * @param {Theme} [props.theme='dark'] - The theme of the breadcrumbs.
+ * @returns {JSX.Element | null} The rendered breadcrumbs component or null if no items are provided.
+ */
 export function Breadcrumbs({ items, className = '', theme = 'dark' }: BreadcrumbsProps) {
   if (!items || items.length === 0) {
     return null;

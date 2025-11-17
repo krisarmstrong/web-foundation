@@ -1,5 +1,18 @@
 import { useCallback, useEffect, useRef } from 'react';
 
+// Type declarations for third-party analytics globals
+declare global {
+  interface Window {
+    gtag?: (
+      command: 'config' | 'event',
+      targetId: string,
+      config?: Record<string, unknown>
+    ) => void;
+    GA_MEASUREMENT_ID?: string;
+    plausible?: (eventName: string, options?: { props?: Record<string, unknown> }) => void;
+  }
+}
+
 /**
  * Telemetry event properties
  */
@@ -94,11 +107,11 @@ const consoleProvider: TelemetryProvider = {
  * Google Analytics provider (if window.gtag is available)
  */
 const createGoogleAnalyticsProvider = (): TelemetryProvider | null => {
-  if (typeof window === 'undefined' || !(window as any).gtag) {
+  if (typeof window === 'undefined' || !window.gtag) {
     return null;
   }
 
-  const gtag = (window as any).gtag;
+  const gtag = window.gtag;
 
   return {
     trackEvent: (eventName, properties) => {
@@ -115,9 +128,11 @@ const createGoogleAnalyticsProvider = (): TelemetryProvider | null => {
       gtag('event', 'page_view', properties);
     },
     identify: (userId) => {
-      gtag('config', (window as any).GA_MEASUREMENT_ID, {
-        user_id: userId,
-      });
+      if (window.GA_MEASUREMENT_ID) {
+        gtag('config', window.GA_MEASUREMENT_ID, {
+          user_id: userId,
+        });
+      }
     },
   };
 };
@@ -126,11 +141,11 @@ const createGoogleAnalyticsProvider = (): TelemetryProvider | null => {
  * Plausible Analytics provider (if window.plausible is available)
  */
 const createPlausibleProvider = (): TelemetryProvider | null => {
-  if (typeof window === 'undefined' || !(window as any).plausible) {
+  if (typeof window === 'undefined' || !window.plausible) {
     return null;
   }
 
-  const plausible = (window as any).plausible;
+  const plausible = window.plausible;
 
   return {
     trackEvent: (eventName, properties) => {

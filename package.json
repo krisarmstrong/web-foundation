@@ -28,7 +28,7 @@
   ],
   "scripts": {
     "clean": "rimraf dist",
-    "build:js": "tsup src/index.ts src/tokens.ts --dts --sourcemap --format esm,cjs --out-dir dist",
+    "build:js": "tsup src/index.ts src/tokens.ts --dts --sourcemap --format esm,cjs --out-dir dist --metafile",
     "build:css": "npx @tailwindcss/cli@latest -i ./src/index.css -o ./dist/index.css --minify",
     "build": "npm run clean && npm run build:js && npm run build:css",
     "dev:js": "tsup src/index.ts src/tokens.ts --dts --watch --format esm,cjs --out-dir dist",
@@ -39,12 +39,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "bundle:analyze": "esbuild-visualizer --metadata ./dist/metafile-esm.json --filename ./dist/bundle.html"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",
-      "prettier --write"
+      "prettier --write",
+      "bash -c 'tsc --noEmit'"
     ],
     "*.{json,md}": [
       "prettier --write"
@@ -63,6 +65,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/dompurify": "^3.0.5",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
@@ -70,10 +73,13 @@
     "@vitejs/plugin-react": "^5.1.1",
     "@vitest/browser-playwright": "^4.0.9",
     "@vitest/coverage-v8": "^4.0.9",
+    "esbuild-visualizer": "^0.7.0",
     "eslint": "^9.39.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-no-secrets": "^2.2.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-security": "^3.0.1",
     "husky": "^9.1.7",
     "jsdom": "^27.2.0",
     "lint-staged": "^16.2.6",
@@ -87,5 +93,8 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.9"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "dompurify": "^3.3.0"
+  }
 }

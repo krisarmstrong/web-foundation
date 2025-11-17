@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Search, X } from 'lucide-react';
 
 export interface SearchableItem {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface ContentSearchProps<T extends SearchableItem> {
@@ -97,8 +97,13 @@ export function ContentSearch<T extends SearchableItem>({
   }, [query, debounceMs]);
 
   // Get nested value from object using dot notation path
-  const getNestedValue = (obj: any, path: string): any => {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+  const getNestedValue = (obj: SearchableItem, path: string): unknown => {
+    return path.split('.').reduce((current, key) => {
+      if (current && typeof current === 'object' && key in current) {
+        return (current as Record<string, unknown>)[key];
+      }
+      return undefined;
+    }, obj as unknown);
   };
 
   // Filter items based on search query
@@ -146,10 +151,7 @@ export function ContentSearch<T extends SearchableItem>({
       {/* Search Input */}
       <div className="relative">
         <div className="relative flex items-center">
-          <Search
-            size={20}
-            className={`absolute left-4 ${colors.text} pointer-events-none`}
-          />
+          <Search size={20} className={`absolute left-4 ${colors.text} pointer-events-none`} />
           <input
             type="text"
             value={query}
@@ -183,13 +185,9 @@ export function ContentSearch<T extends SearchableItem>({
           <span className="text-gray-400">
             Found {filteredItems.length} {filteredItems.length === 1 ? 'result' : 'results'}
           </span>
+          {filteredItems.length > 0 && <span className="text-gray-600">•</span>}
           {filteredItems.length > 0 && (
-            <span className="text-gray-600">•</span>
-          )}
-          {filteredItems.length > 0 && (
-            <span className={`${colors.text} font-medium`}>
-              "{debouncedQuery}"
-            </span>
+            <span className={`${colors.text} font-medium`}>"{debouncedQuery}"</span>
           )}
         </div>
       )}
@@ -198,14 +196,12 @@ export function ContentSearch<T extends SearchableItem>({
       {showResultCount && debouncedQuery && filteredItems.length === 0 && (
         <div className={`p-4 rounded-lg ${colors.bg} border border-gray-700`}>
           <p className="text-sm text-gray-400 text-center">
-            No results found for <span className={`${colors.text} font-medium`}>"{debouncedQuery}"</span>
+            No results found for{' '}
+            <span className={`${colors.text} font-medium`}>"{debouncedQuery}"</span>
           </p>
           <p className="text-xs text-gray-500 text-center mt-1">
             Try different keywords or{' '}
-            <button
-              onClick={handleClear}
-              className={`${colors.text} hover:underline`}
-            >
+            <button onClick={handleClear} className={`${colors.text} hover:underline`}>
               clear search
             </button>
           </p>

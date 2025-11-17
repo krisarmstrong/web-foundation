@@ -46,7 +46,6 @@ export function List({
   accentColor = 'violet',
 }: ListProps) {
   const spacingClass = spacingClasses[spacing];
-  const _colorClass = accentColorClasses[accentColor]; // Reserved for future use
 
   if (style === 'number') {
     return (
