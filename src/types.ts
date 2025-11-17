@@ -28,7 +28,6 @@ export interface FooterProps {
 export interface BreadcrumbsProps {
   items: BreadcrumbItem[];
   className?: string;
-  theme?: Theme;
 }
 
 export type Theme = 'dark' | 'light';
