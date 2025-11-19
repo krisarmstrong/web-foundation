@@ -16,13 +16,15 @@ body {
   color: var(--theme-text-primary);
 }
 
-a {
-  color: var(--theme-brand-primary);
-}
-
 /* Ensure all component classes are generated */
 @layer components {
   .web-foundation-ready {
     @apply hidden;
   }
+}
+
+/* Header token background for token-driven header styling demonstration */
+.header-token {
+  background-color: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
 }

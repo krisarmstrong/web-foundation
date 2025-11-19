@@ -20,8 +20,8 @@ export interface BreadcrumbItem {
 
 export interface FooterProps {
   social?: Array<{ label: string; href: string; icon: ReactNode }>;
-  legalLinks: LegalLink[];
-  copyright: ReactNode;
+  legalLinks?: LegalLink[];
+  copyright?: ReactNode;
   theme?: Theme;
 }
 

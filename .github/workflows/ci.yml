@@ -23,3 +23,5 @@ jobs:
         run: npm test --silent
       - name: Token Usage Test
         run: node scripts/token-usage-test.cjs
+      - name: Security Audit
+        run: node scripts/security-audit.js

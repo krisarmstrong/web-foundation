@@ -15,6 +15,7 @@ function walk(dir, exts, acc=[]){
   return acc;
 }
 
+function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'); }
 function tokensFromCss(cssPath){
   const content = read(cssPath);
   const re = /--theme-([A-Za-z0-9_-]+):/g;
@@ -28,28 +29,37 @@ function countUsage(repoRoot, tokens){
   const files = walk(repoRoot, ['.css','.ts','.tsx','.js','.jsx']);
   const usage = {};
   tokens.forEach(t => usage[t] = 0);
+  function countIn(text, token){
+    const esc = escapeRegExp(token);
+    const patterns = [
+      new RegExp(`var\\(--theme-${esc}\\)`, 'g'),
+      new RegExp(`'var\\(--theme-${esc}\\)'`, 'g'),
+      new RegExp("`var(--theme-".replace(/-/g,'-') + esc + "`)" , 'g')
+    ];
+    let total = 0;
+    for(const pat of patterns){
+      const m = text.match(pat);
+      if(m) total += m.length;
+    }
+    return total;
+  }
   for(const f of files){
-    const data = read(f);
+    const text = read(f);
     for(const t of tokens){
-      const needle = `var(--theme-${t})`;
-      if(data.includes(needle)){
-        const re = new RegExp(needle.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'g');
-        const matches = data.match(re) || [];
-        usage[t] += matches.length;
-      }
+      usage[t] += countIn(text, t);
     }
   }
-  return usage;
+  const unused = tokens.filter(t => usage[t] <= 0);
+  return { usage, unused };
 }
 
 (function run(){
   const repoRoot = path.resolve(__dirname, '..');
-  let tokensPath = path.join(repoRoot, 'src','themes','shared-tokens.css');
-  if(!fs.existsSync(tokensPath)) tokensPath = path.join(repoRoot, 'src','shared-tokens.css');
-  const tokens = tokensFromCss(tokensPath);
-  const usage = countUsage(repoRoot, tokens);
-  const unused = tokens.filter(t => usage[t] === 0);
+  const tokensPath = path.join(repoRoot, 'src','themes','shared-tokens.css');
+  const tokensAlt = path.join(repoRoot, 'src','shared-tokens.css');
+  const tokens = fs.existsSync(tokensPath) ? tokensFromCss(tokensPath) : tokensFromCss(tokensAlt);
+  const { usage, unused } = countUsage(repoRoot, tokens);
   const out = { repo: 'web-foundation', tokens, usage, unused };
   console.log(JSON.stringify(out, null, 2));
-  if(unused.length>0){ process.exit(1); }
+  if(unused && unused.length>0){ process.exit(1); }
 })();

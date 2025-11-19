@@ -1,6 +1,40 @@
 import { createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 
 /**
+ * Validates if a string is a valid CSS color value
+ * @param color - The color string to validate
+ * @returns true if valid, false otherwise
+ */
+function isValidCSSColor(color: string): boolean {
+  if (!color || typeof color !== 'string') return false;
+
+  // Allow CSS variables
+  if (color.startsWith('var(')) return true;
+
+  // Test by setting on a temporary element
+  const element = document.createElement('div');
+  element.style.color = '';
+  element.style.color = color;
+
+  // If the color was set successfully, it's valid
+  return element.style.color !== '';
+}
+
+/**
+ * Safely sets a CSS property with validation
+ * @param element - The element to set the property on
+ * @param property - The CSS property name
+ * @param value - The value to set
+ */
+function setSafeProperty(element: HTMLElement, property: string, value: string): void {
+  if (isValidCSSColor(value)) {
+    element.style.setProperty(property, value);
+  } else {
+    console.warn(`Invalid CSS color value for ${property}: ${value}`);
+  }
+}
+
+/**
  * Theme configuration interface
  * All colors should be CSS values (hex, rgb, hsl, CSS variables, etc.)
  */
@@ -63,6 +97,8 @@ export interface ThemeContextValue {
   setTheme: (theme: ThemeConfig) => void;
   /** Update color mode */
   setMode: (mode: ColorMode) => void;
+  /** Toggle between light and dark modes */
+  toggleTheme?: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -138,37 +174,80 @@ export const defaultLightTheme: ThemeConfig = {
 };
 
 /**
- * Intrinsic Momentum Mindset theme (sage/earth tones)
+ * Intrinsic Momentum Mindset theme - Light mode (Sage Green & Rich Gold)
+ * Enhanced with better color hierarchy and visual interest
  */
 export const intrinsicTheme: ThemeConfig = {
   brand: {
-    primary: '#96A77A',
-    accent: '#CFB53B',
+    primary: '#CFB53B',     // Rich gold (PRIMARY for CTAs and important elements)
+    accent: '#96A77A',      // Sage green (ACCENT for supporting elements)
   },
   surface: {
-    base: '#F8F6F1',
-    raised: '#FFFFFF',
-    border: '#4A574A',
-    hover: '#E8E6E1',
+    base: '#FAFAF8',        // Slightly warmer off-white background
+    raised: '#FFFFFF',      // Pure white for cards
+    border: '#D4CFC4',      // Softer, lighter border
+    hover: '#F0EDE5',       // Warm hover state
   },
   text: {
-    primary: '#303F33',
-    muted: '#4A574A',
-    accent: '#CFB53B',
-    inverse: '#F8F6F1',
+    primary: '#2A3930',     // Deeper forest green (better contrast)
+    muted: '#5F6B62',       // Medium green-gray for secondary text
+    accent: '#CFB53B',      // Rich gold for highlights
+    inverse: '#FAFAF8',     // Light text for dark backgrounds
   },
   interactive: {
-    default: '#96A77A',
-    hover: '#7A8A62',
-    active: '#CFB53B',
-    focus: '#CFB53B',
-    disabled: '#D9D7CF',
+    default: '#CFB53B',     // Gold as primary interactive color
+    hover: '#E0C854',       // Brighter gold on hover
+    active: '#B89F2F',      // Darker gold when pressed
+    focus: '#CFB53B',       // Gold focus ring
+    disabled: '#D9D7CF',    // Muted gray
   },
   status: {
-    success: '#96A77A',
-    warning: '#CFB53B',
-    error: '#B85450',
-    info: '#5B7A8F',
+    success: '#96A77A',     // Sage for success
+    warning: '#E0A830',     // Warmer gold for warnings
+    error: '#C85C57',       // Slightly brighter muted red
+    info: '#D48B5C',        // Warmer burnt orange for energy
+  },
+  typography: {
+    fontFamily: {
+      heading: 'Poppins, sans-serif',
+      body: 'Inter, sans-serif',
+    },
+  },
+};
+
+/**
+ * Intrinsic Momentum Mindset theme - Dark mode (Sage Green & Rich Gold)
+ * Enhanced with better color hierarchy and visual interest
+ */
+export const intrinsicThemeDark: ThemeConfig = {
+  brand: {
+    primary: '#E0C854',     // Brighter gold (PRIMARY for CTAs in dark mode)
+    accent: '#A8BA8E',      // Lighter sage (ACCENT for supporting elements)
+  },
+  surface: {
+    base: '#1C2621',        // Rich dark forest background
+    raised: '#2A3930',      // Elevated dark surface
+    border: '#3F4E45',      // Subtle border
+    hover: '#364439',       // Warm hover state
+  },
+  text: {
+    primary: '#F5F3ED',     // Warm light text (better readability)
+    muted: '#C4C2B8',       // Warm muted text
+    accent: '#E0C854',      // Bright gold for highlights
+    inverse: '#2A3930',     // Dark text for light backgrounds
+  },
+  interactive: {
+    default: '#E0C854',     // Bright gold as primary interactive
+    hover: '#F0D96F',       // Even brighter gold on hover
+    active: '#CFB53B',      // Standard gold when pressed
+    focus: '#E0C854',       // Bright gold focus ring
+    disabled: '#4A574A',    // Muted gray-green
+  },
+  status: {
+    success: '#A8BA8E',     // Lighter sage for success
+    warning: '#F0D96F',     // Bright gold for warnings
+    error: '#EB7A75',       // Softer red for dark backgrounds
+    info: '#F0A878',        // Warm orange for energy
   },
   typography: {
     fontFamily: {
@@ -183,6 +262,8 @@ export interface ThemeProviderProps {
   children: ReactNode;
   /** Initial theme configuration (default: defaultDarkTheme) */
   initialTheme?: ThemeConfig;
+  /** Dark theme variant (optional) */
+  darkTheme?: ThemeConfig;
   /** Initial color mode (default: 'dark') */
   initialMode?: ColorMode;
   /** Allow theme updates (default: true) */
@@ -202,11 +283,14 @@ export interface ThemeProviderProps {
 export function ThemeProvider({
   children,
   initialTheme = defaultDarkTheme,
+  darkTheme,
   initialMode = 'dark',
   allowThemeUpdates = true,
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<ThemeConfig>(initialTheme);
   const [mode, setModeState] = useState<ColorMode>(initialMode);
+  const lightThemeRef = useState(initialTheme)[0];
+  const darkThemeRef = useState(darkTheme || defaultDarkTheme)[0];
 
   const setTheme = useMemo(
     () => (allowThemeUpdates ? setThemeState : () => {}),
@@ -218,28 +302,40 @@ export function ThemeProvider({
     [allowThemeUpdates]
   );
 
+  const toggleTheme = useMemo(
+    () => (allowThemeUpdates ? () => {
+      setModeState(prev => {
+        const newMode = prev === 'light' ? 'dark' : 'light';
+        setThemeState(newMode === 'light' ? lightThemeRef : darkThemeRef);
+        return newMode;
+      });
+    } : undefined),
+    [allowThemeUpdates, lightThemeRef, darkThemeRef]
+  );
+
   // Apply CSS variables to document root
   useEffect(() => {
     const root = document.documentElement;
 
     // Brand colors
-    if (theme.brand?.primary) root.style.setProperty('--theme-brand-primary', theme.brand.primary);
-    if (theme.brand?.accent) root.style.setProperty('--theme-brand-accent', theme.brand.accent);
+    if (theme.brand?.primary) setSafeProperty(root, '--theme-brand-primary', theme.brand.primary);
+    if (theme.brand?.accent) setSafeProperty(root, '--theme-brand-accent', theme.brand.accent);
 
     // Surface colors
-    if (theme.surface?.base) root.style.setProperty('--theme-surface-base', theme.surface.base);
-    if (theme.surface?.raised) root.style.setProperty('--theme-surface-raised', theme.surface.raised);
-    if (theme.surface?.border) root.style.setProperty('--theme-surface-border', theme.surface.border);
+    if (theme.surface?.base) setSafeProperty(root, '--theme-surface-base', theme.surface.base);
+    if (theme.surface?.raised) setSafeProperty(root, '--theme-surface-raised', theme.surface.raised);
+    if (theme.surface?.border) setSafeProperty(root, '--theme-surface-border', theme.surface.border);
 
     // Text colors
-    if (theme.text?.primary) root.style.setProperty('--theme-text-primary', theme.text.primary);
-    if (theme.text?.muted) root.style.setProperty('--theme-text-muted', theme.text.muted);
-    if (theme.text?.accent) root.style.setProperty('--theme-text-accent', theme.text.accent);
+    if (theme.text?.primary) setSafeProperty(root, '--theme-text-primary', theme.text.primary);
+    if (theme.text?.muted) setSafeProperty(root, '--theme-text-muted', theme.text.muted);
+    if (theme.text?.accent) setSafeProperty(root, '--theme-text-accent', theme.text.accent);
+    if (theme.text?.inverse) setSafeProperty(root, '--theme-text-inverse', theme.text.inverse);
 
     // Interactive colors
-    if (theme.interactive?.hover) root.style.setProperty('--theme-interactive-hover', theme.interactive.hover);
-    if (theme.interactive?.active) root.style.setProperty('--theme-interactive-active', theme.interactive.active);
-    if (theme.interactive?.focus) root.style.setProperty('--theme-interactive-focus', theme.interactive.focus);
+    if (theme.interactive?.hover) setSafeProperty(root, '--theme-interactive-hover', theme.interactive.hover);
+    if (theme.interactive?.active) setSafeProperty(root, '--theme-interactive-active', theme.interactive.active);
+    if (theme.interactive?.focus) setSafeProperty(root, '--theme-interactive-focus', theme.interactive.focus);
 
     // Apply color mode class
     root.classList.remove('light', 'dark');
@@ -252,8 +348,8 @@ export function ThemeProvider({
   }, [theme, mode]);
 
   const value = useMemo(
-    () => ({ theme, mode, setTheme, setMode }),
-    [theme, mode, setTheme, setMode]
+    () => ({ theme, mode, setTheme, setMode, toggleTheme }),
+    [theme, mode, setTheme, setMode, toggleTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
