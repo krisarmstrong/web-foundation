@@ -16,8 +16,8 @@ const defaultSocial = [
 
 export function Footer({
   social = defaultSocial,
-  legalLinks,
-  copyright,
+  legalLinks = [],
+  copyright = '',
   theme = 'dark',
 }: FooterProps) {
   // Use theme context if available, otherwise fall back to theme prop

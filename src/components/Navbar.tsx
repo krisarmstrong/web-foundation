@@ -83,10 +83,19 @@ export function Navbar({
   const theme = themeContext?.theme;
 
   const colors = variantColors[variant];
-  const finalBgColor = theme ? 'bg-surface-raised' : bgColor || colors.bg;
-  const finalBorderColor = theme ? 'border-surface-border' : borderColor || colors.border;
-  const finalTextColor = theme ? 'text-text-primary' : textColor || colors.text;
-  const finalAccentColor = accentColor || colors.accent;
+
+  // When theme is present, use CSS variables via inline styles
+  // Otherwise use Tailwind classes from variant
+  const navStyles = theme ? {
+    backgroundColor: 'var(--theme-surface-raised)',
+    borderColor: 'var(--theme-surface-border)',
+    color: 'var(--theme-text-primary)',
+  } : {};
+
+  const finalBgColor = theme ? '' : bgColor || colors.bg;
+  const finalBorderColor = theme ? '' : borderColor || colors.border;
+  const finalTextColor = theme ? '' : textColor || colors.text;
+  const finalAccentColor = theme ? 'focus:ring-[var(--theme-brand-accent)]' : accentColor || colors.accent;
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -137,8 +146,8 @@ export function Navbar({
       </a>
 
       <nav
-        className={`w-full ${theme ? '' : finalBgColor} ${theme ? '' : finalTextColor} shadow-md px-4 sm:px-6 py-4 flex items-center justify-between z-40 sticky top-0 backdrop-blur-sm bg-opacity-95 border-b ${theme ? '' : finalBorderColor}`}
-        style={{}}
+        className={`w-full ${finalBgColor} ${finalTextColor} shadow-md px-4 sm:px-6 py-4 flex items-center justify-between z-40 sticky top-0 backdrop-blur-sm bg-opacity-95 border-b ${finalBorderColor} header-token`}
+        style={navStyles}
         role="navigation"
         aria-label="Main navigation"
       >
@@ -184,7 +193,7 @@ export function Navbar({
           <div
             ref={menuRef}
             className={`fixed top-0 right-0 h-screen w-80 max-w-[85vw] ${finalBgColor} border-l ${finalBorderColor} z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}
-            style={{}}
+            style={navStyles}
             role="dialog"
             aria-modal={menuOpen}
             aria-label="Mobile navigation"
@@ -193,7 +202,6 @@ export function Navbar({
             {/* Header */}
             <div
               className={`flex items-center justify-between p-4 border-b ${finalBorderColor}`}
-              style={theme ? { borderColor: theme.surface?.border } : {}}
             >
               <div className="flex items-center gap-2">{logo}</div>
               <button

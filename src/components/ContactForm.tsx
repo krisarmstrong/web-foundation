@@ -1,6 +1,7 @@
 import { FormEvent, ReactNode, useId, useState } from 'react';
 import { Button } from './ui/Button';
 import { useTelemetry } from '../hooks/useTelemetry';
+import { useOptionalTheme } from '../context/ThemeContext';
 import type { TelemetryConfig } from '../hooks/useTelemetry';
 
 const toneStyles = {
@@ -106,9 +107,29 @@ export function ContactForm({
   const [honeypot, setHoneypot] = useState('');
   const honeypotId = useId();
 
+  const themeContext = useOptionalTheme();
+  const hasTheme = !!themeContext?.theme;
+
   const palette = toneStyles[tone];
   const surface = surfaces[background];
   const telemetryHook = useTelemetry(telemetry);
+
+  // Theme-aware styles
+  const cardStyles = hasTheme ? {
+    backgroundColor: 'var(--theme-surface-raised)',
+    borderColor: 'var(--theme-surface-border)',
+    color: 'var(--theme-text-primary)',
+  } : {};
+
+  const inputStyles = hasTheme ? {
+    backgroundColor: 'var(--theme-surface-base)',
+    borderColor: 'var(--theme-surface-border)',
+    color: 'var(--theme-text-primary)',
+  } : {};
+
+  const labelClasses = hasTheme ? '' : surface.label;
+  const inputClasses = hasTheme ? '' : surface.input;
+  const cardClasses = hasTheme ? 'border shadow-lg' : surface.card;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -205,7 +226,8 @@ export function ContactForm({
       ) : (
         <form
           onSubmit={handleSubmit}
-          className={`space-y-6 rounded-2xl px-6 py-8 ${surface.card} ${cardClassName}`}
+          className={`space-y-6 rounded-2xl px-6 py-8 ${cardClasses} ${cardClassName}`}
+          style={cardStyles}
         >
           <div className="sr-only" aria-hidden="true">
             <label htmlFor={honeypotId}>Company</label>
@@ -221,7 +243,11 @@ export function ContactForm({
           </div>
 
           <div>
-            <label className={`mb-2 block text-sm font-semibold ${surface.label}`} htmlFor="contact-name">
+            <label
+              className={`mb-2 block text-sm font-semibold ${labelClasses}`}
+              htmlFor="contact-name"
+              style={hasTheme ? { color: 'var(--theme-text-primary)' } : {}}
+            >
               {nameLabel}
             </label>
             <input
@@ -230,12 +256,17 @@ export function ContactForm({
               type="text"
               required
               placeholder={namePlaceholder}
-              className={`w-full rounded-lg border-2 px-4 py-3 transition ${surface.input} ${palette.focus}`}
+              className={`w-full rounded-lg border-2 px-4 py-3 transition ${inputClasses} ${hasTheme ? 'focus:ring-2' : palette.focus}`}
+              style={inputStyles}
             />
           </div>
 
           <div>
-            <label className={`mb-2 block text-sm font-semibold ${surface.label}`} htmlFor="contact-email">
+            <label
+              className={`mb-2 block text-sm font-semibold ${labelClasses}`}
+              htmlFor="contact-email"
+              style={hasTheme ? { color: 'var(--theme-text-primary)' } : {}}
+            >
               {emailLabel}
             </label>
             <input
@@ -244,12 +275,17 @@ export function ContactForm({
               type="email"
               required
               placeholder={emailPlaceholder}
-              className={`w-full rounded-lg border-2 px-4 py-3 transition ${surface.input} ${palette.focus}`}
+              className={`w-full rounded-lg border-2 px-4 py-3 transition ${inputClasses} ${hasTheme ? 'focus:ring-2' : palette.focus}`}
+              style={inputStyles}
             />
           </div>
 
           <div>
-            <label className={`mb-2 block text-sm font-semibold ${surface.label}`} htmlFor="contact-message">
+            <label
+              className={`mb-2 block text-sm font-semibold ${labelClasses}`}
+              htmlFor="contact-message"
+              style={hasTheme ? { color: 'var(--theme-text-primary)' } : {}}
+            >
               {messageLabel}
             </label>
             <textarea
@@ -257,7 +293,8 @@ export function ContactForm({
               name="message"
               required
               placeholder={messagePlaceholder}
-              className={`min-h-[140px] w-full resize-y rounded-lg border-2 px-4 py-3 transition ${surface.input} ${palette.focus}`}
+              className={`min-h-[140px] w-full resize-y rounded-lg border-2 px-4 py-3 transition ${inputClasses} ${hasTheme ? 'focus:ring-2' : palette.focus}`}
+              style={inputStyles}
             />
           </div>
 
@@ -273,13 +310,20 @@ export function ContactForm({
           </Button>
 
           {privacyNotice && (
-            <p className={`text-xs ${surface.helper}`}>
+            <p
+              className={`text-xs ${hasTheme ? '' : surface.helper}`}
+              style={hasTheme ? { color: 'var(--theme-text-muted)' } : {}}
+            >
               {privacyNotice}
             </p>
           )}
 
           {error && (
-            <p className={`text-sm ${surface.error}`} role="alert">
+            <p
+              className={`text-sm ${hasTheme ? '' : surface.error}`}
+              style={hasTheme ? { color: 'var(--theme-status-error)' } : {}}
+              role="alert"
+            >
               {error}
             </p>
           )}

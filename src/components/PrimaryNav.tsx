@@ -44,8 +44,8 @@ export function PrimaryNav({
 
   const themeClasses = theme
     ? {
-        active: 'bg-interactive-active text-text-inverse shadow-lg',
-        inactive: 'text-text-primary hover:bg-surface-hover hover:text-interactive-hover',
+        active: 'shadow-lg',
+        inactive: 'hover:bg-[var(--theme-brand-primary)]/10 hover:text-[var(--theme-brand-accent)]',
       }
     : variantClasses[variant];
 
@@ -53,11 +53,23 @@ export function PrimaryNav({
   const inactiveClasses = themeClasses.inactive;
 
   const baseLinkClasses =
-    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900';
+    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 min-h-[40px]';
   const orientationClasses =
     orientation === 'horizontal'
-      ? 'focus:ring-violet-500'
-      : 'focus:ring-violet-500 w-full justify-between';
+      ? ''
+      : 'w-full justify-between';
+
+  // Inline styles for theme-based colors
+  const getActiveStyles = () => theme ? {
+    backgroundColor: 'var(--theme-brand-accent)',
+    color: 'var(--theme-text-inverse)',
+  } : {};
+
+  const getInactiveStyles = () => theme ? {
+    color: 'var(--theme-text-primary)',
+  } : {};
+
+  const getFocusRingClass = () => theme ? 'focus:ring-[var(--theme-brand-accent)]' : 'focus:ring-violet-500';
 
   return (
     <nav className={`${wrapperBase} ${className}`.trim()} aria-label="Primary navigation">
@@ -76,7 +88,7 @@ export function PrimaryNav({
             )}
           </>
         );
-        const combinedClasses = `${baseLinkClasses} ${orientationClasses} ${
+        const combinedClasses = `${baseLinkClasses} ${orientationClasses} ${getFocusRingClass()} ${
           isExternal ? inactiveClasses : ''
         }`.trim();
 
@@ -88,6 +100,7 @@ export function PrimaryNav({
               target="_blank"
               rel="noreferrer noopener"
               className={combinedClasses}
+              style={getInactiveStyles()}
               onClick={onNavigate}
             >
               {content}
@@ -103,9 +116,11 @@ export function PrimaryNav({
               [
                 baseLinkClasses,
                 orientationClasses,
+                getFocusRingClass(),
                 isActive ? activeClasses : inactiveClasses,
               ].join(' ')
             }
+            style={({ isActive }) => isActive ? getActiveStyles() : getInactiveStyles()}
             onClick={onNavigate}
           >
             {content}
