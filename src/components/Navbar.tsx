@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, ReactNode, CSSProperties } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { PrimaryNav } from './PrimaryNav';
 import type { NavItem } from '../types';
 import { useOptionalTheme } from '../context/ThemeContext';
+import clsx from 'clsx';
 
 type NavVariant = 'violet' | 'blue' | 'sage' | 'default';
 
@@ -83,26 +84,10 @@ export function Navbar({
   const theme = themeContext?.theme;
 
   const colors = variantColors[variant];
-  const finalBgColor = theme ? '' : bgColor || colors.bg;
-  const finalBorderColor = theme ? '' : borderColor || colors.border;
-  const finalTextColor = theme ? '' : textColor || colors.text;
+  const finalBgColor = theme ? 'bg-surface-raised' : bgColor || colors.bg;
+  const finalBorderColor = theme ? 'border-surface-border' : borderColor || colors.border;
+  const finalTextColor = theme ? 'text-text-primary' : textColor || colors.text;
   const finalAccentColor = accentColor || colors.accent;
-
-  // Build inline styles from theme if available
-  const navStyle: CSSProperties = theme
-    ? {
-        backgroundColor: theme.surface?.raised,
-        borderBottom: `1px solid ${theme.surface?.border}`,
-        color: theme.text?.primary,
-      }
-    : {};
-
-  const drawerStyle: CSSProperties = theme
-    ? {
-        backgroundColor: theme.surface?.raised,
-        borderColor: theme.surface?.border,
-      }
-    : {};
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -144,17 +129,9 @@ export function Navbar({
 
   return (
     <>
-      {/* Skip to content link for accessibility */}
-      <a
-        href="#main-content"
-        className={`sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 ${finalBgColor} ${finalTextColor} focus:rounded-lg focus:shadow-lg ${finalAccentColor}`}
-      >
-        Skip to content
-      </a>
-
       <nav
-        className={`w-full ${theme ? '' : finalBgColor} ${theme ? '' : finalTextColor} shadow-md px-4 sm:px-6 py-4 flex items-center justify-between z-40 sticky top-0 backdrop-blur-sm bg-opacity-95 border-b ${theme ? '' : finalBorderColor}`}
-        style={navStyle}
+        className={`relative w-full ${finalBgColor} ${finalTextColor} shadow-md px-4 sm:px-6 py-4 flex items-center justify-between z-40 sticky top-0 backdrop-blur-sm bg-opacity-95 border-b ${finalBorderColor}`}
+        style={{}}
         role="navigation"
         aria-label="Main navigation"
       >
@@ -173,75 +150,72 @@ export function Navbar({
           {desktopActions}
         </div>
 
-        {/* Mobile: Hamburger */}
-        <button
-          className={`md:hidden ${finalAccentColor} focus:outline-none focus:ring-2 rounded-lg p-2 hover:bg-opacity-10 transition-colors`}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile Menu Container */}
+        <div className="md:hidden relative">
+          {/* Hamburger Button */}
+          <button
+            className={`text-inherit ${finalAccentColor} focus:outline-none focus:ring-2 rounded-lg p-2 hover:bg-opacity-10 transition-colors`}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
 
-        {/* Mobile Menu - Slide-in Drawer */}
-        {menuOpen && (
-          <>
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+          {/* Backdrop */}
+          {menuOpen && (
+            <button
+              type="button"
+              aria-label="Close menu"
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={closeMenu}
-              aria-hidden="true"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') closeMenu();
+              }}
             />
+          )}
 
-            {/* Drawer */}
-            <div
-              ref={menuRef}
-              className={`fixed top-0 right-0 h-screen w-80 max-w-[85vw] ${finalBgColor} border-l ${finalBorderColor} z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out shadow-2xl flex flex-col`}
-              style={drawerStyle}
-              role="dialog"
-              aria-modal="true"
-              aria-label="Mobile navigation"
-            >
-              {/* Header */}
-              <div
-                className={`flex items-center justify-between p-4 border-b ${finalBorderColor}`}
-                style={theme ? { borderColor: theme.surface?.border } : {}}
-              >
-                <div className="flex items-center gap-2">{logo}</div>
-                <button
-                  className={`${finalAccentColor} focus:outline-none focus:ring-2 rounded-lg p-2 transition-colors`}
-                  onClick={closeMenu}
-                  aria-label="Close navigation menu"
-                >
-                  <X size={24} />
-                </button>
-              </div>
+          {/* Mobile Menu - Dropdown */}
+          <div
+            ref={menuRef}
+            className={clsx(
+              `absolute right-0 top-full mt-2 w-56 rounded-lg shadow-2xl ${finalBgColor} ${finalTextColor} border-2 ${finalBorderColor} transition-all duration-300 ease-in-out`,
+              {
+                'opacity-100 translate-y-0': menuOpen,
+                'opacity-0 -translate-y-4 pointer-events-none': !menuOpen,
+              }
+            )}
+            style={{ zIndex: 9999 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+          >
+            {/* Mobile Actions */}
+            {mobileActions && (
+              <div className={`p-4 border-b ${finalBorderColor}`}>{mobileActions}</div>
+            )}
 
-              {/* Mobile Actions (e.g., Search) */}
-              {mobileActions && <div className="px-4 pt-4">{mobileActions}</div>}
+            {/* Navigation Links */}
+            <nav className="py-2">
+              <PrimaryNav
+                items={navItems}
+                orientation="vertical"
+                variant={variant === 'default' ? 'violet' : variant}
+                onNavigate={closeMenu}
+              />
+            </nav>
 
-              {/* Navigation Links */}
-              <nav className="flex-1 overflow-y-auto py-6 px-4">
-                <PrimaryNav
-                  items={navItems}
-                  orientation="vertical"
-                  variant={variant === 'default' ? 'violet' : variant}
-                  onNavigate={closeMenu}
-                />
-              </nav>
+            {/* Desktop Actions in Mobile Menu */}
+            {desktopActions && (
+              <div className={`p-4 border-t ${finalBorderColor}`}>{desktopActions}</div>
+            )}
 
-              {/* Footer */}
-              {mobileFooter && (
-                <div
-                  className={`p-6 border-t ${finalBorderColor}`}
-                  style={theme ? { borderColor: theme.surface?.border } : {}}
-                >
-                  {mobileFooter}
-                </div>
-              )}
-            </div>
-          </>
-        )}
+            {/* Footer */}
+            {mobileFooter && (
+              <div className={`p-4 border-t ${finalBorderColor}`}>{mobileFooter}</div>
+            )}
+          </div>
+        </div>
       </nav>
     </>
   );
