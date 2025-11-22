@@ -18,7 +18,7 @@ jobs:
       - name: Run weekly health aggregator
         run: node scripts/weekly-health-aggregator.js --output weekly-health-report-$(date +%F).md
       - name: Upload weekly health report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: weekly-health-report
           path: weekly-health-report-*.md
