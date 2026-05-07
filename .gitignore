@@ -1,13 +1,24 @@
-node_modules/
-dist/
-*.log
-.DS_Store
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ @krisarmstrong/web-foundation - .gitignore                                ║
+# ╠═══════════════════════════════════════════════════════════════════════════╣
+# ║ Shared web foundation library/components                                  ║
+# ║ Stack: Node.js/TypeScript, React components, Storybook                   ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
 
-*storybook.log
-storybook-static
+# ─── Node.js Dependencies ────────────────────────────────────────────────────
+node_modules/
+.pnp/
+.pnp.js
+
+# ─── Build Outputs ───────────────────────────────────────────────────────────
+dist/
+build/
+*.tsbuildinfo
+
+# Package tarballs
 *.tgz
 
-# Secrets and environment variables
+# ─── Environment & Secrets ───────────────────────────────────────────────────
 .env
 .env.local
 .env.*.local
@@ -17,3 +28,30 @@ storybook-static
 *.pfx
 secrets.json
 credentials.json
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ─── Testing & Coverage ──────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+
+# ─── Storybook ───────────────────────────────────────────────────────────────
+*storybook.log
+storybook-static/
+
+# ─── Cache & Temporary ───────────────────────────────────────────────────────
+.cache/
+*.tmp
+*.temp
+*~
+
+# ─── IDE & Editors ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
