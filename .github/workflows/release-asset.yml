@@ -1,0 +1,76 @@
+name: Attach release tarball
+
+# Delivers @krisarmstrong/web-foundation as an asset on its v* GitHub release.
+# Sites install that tarball by URL, and their lockfile pins its integrity.
+# The package is private, so it is never published to a registry.
+
+on:
+  release:
+    types: [published]
+  # Re-attach to an existing release, e.g. one published before this workflow.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, e.g. v0.9.13
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release-asset-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  attach:
+    if: >-
+      github.repository == 'krisarmstrong/web-foundation' &&
+      startsWith(github.event.release.tag_name || inputs.tag, 'v') &&
+      !github.event.release.prerelease && !github.event.release.draft
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # upload the release asset
+      id-token: write # Sigstore OIDC signing for the attestation
+      attestations: write
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify the tag is on main
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")"
+          git merge-base --is-ancestor HEAD origin/main
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.3.0'
+          package-manager-cache: false
+      - run: npm install --global npm@11.17.0
+      - name: Verify release metadata
+        run: node scripts/release-policy.ts
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm audit
+      - name: Pack and verify the release artifact
+        id: pack
+        run: |
+          set -euo pipefail
+          artifact="$RUNNER_TEMP/krisarmstrong-web-foundation-${RELEASE_TAG#v}.tgz"
+          RELEASE_ARTIFACT_PATH="$artifact" npm run test:package
+          sha512sum "$artifact"
+          echo "path=$artifact" >> "$GITHUB_OUTPUT"
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ steps.pack.outputs.path }}
+      # No --clobber: sites pin the asset's integrity, so replacing it would
+      # break every lockfile that records it. A rerun on an attached release fails.
+      - name: Attach the verified tarball to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT: ${{ steps.pack.outputs.path }}
+        run: gh release upload "$RELEASE_TAG" "$ARTIFACT" --repo "$GITHUB_REPOSITORY"

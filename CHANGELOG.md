@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.13] - 2026-10-28
+
+### Changed
+- Delivered as an attested tarball on each GitHub release instead of npm; the package is now `private`.
+- Peer dependencies are ranges again (`react`/`react-dom` ^19.2.0, `react-router-dom` ^7.18.2, `lucide-react` ^0.553.0 || ^1.0.0, `@sentry/react` ^10.25.0) so sites are not forced onto one exact version.
+
+### Security
+- `dompurify` 3.4.17, `postcss` 8.5.32, `vitest` 4.1.12 and `react-router-dom` 7.18.5 (dev) clear every `npm audit` finding.
+
 ## [0.9.0] - 2025-11-16
 
 ### Fixed

@@ -9,7 +9,7 @@ import noSecrets from 'eslint-plugin-no-secrets';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', '.github/**', 'coverage/**', 'scripts/**'],
+    ignores: ['dist/**', 'node_modules/**', '.github/**', 'coverage/**', 'scripts/**/*.{js,cjs}'],
   },
   js.configs.recommended,
   security.configs.recommended,
@@ -83,6 +83,13 @@ export default [
       react: {
         version: 'detect',
       },
+    },
+  },
+  {
+    // Release tooling reads and writes only its own package files and temp dirs.
+    files: ['scripts/*.ts'],
+    rules: {
+      'security/detect-non-literal-fs-filename': 'off',
     },
   },
 ];
